@@ -2,7 +2,7 @@
 #include <WINSOCK2.H>   
 #include <iostream>     
 
-#define PORT           5150    //端口号
+#define PORT           51500    //端口号
 #define MSGSIZE        1024    
 
 //?????
@@ -55,28 +55,29 @@ int main()
 	local.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if (bind(sListen, (struct sockaddr *) &local, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
+		//	socket		绑定给socket的地址（本地地址）  地址的长度
 	{
 		cout << "bind error!" << endl;
 	}
 
 	if (listen(sListen, 5) == SOCKET_ERROR)
+		//监听sListen   sListen最大可以排队的连接数量
 	{
 		cout << "listen error!\n";
 		return 0;
 	}
-
-
+	
 	SOCKET sClient;
 	SOCKADDR_IN clientaddr;
 	char szMessage[MSGSIZE];
 	int iaddrSize = sizeof(SOCKADDR_IN);
-
 	
-
-	while (true) 
+	bool quit = false;
+	while (!quit) 
 	{
 		cout << "waiting for connect...\n";
 		sClient = accept(sListen, (struct sockaddr *) &clientaddr, &iaddrSize);
+						//
 		if (sClient == INVALID_SOCKET)
 		{
 			cout << "accept error!\n";
@@ -94,7 +95,20 @@ int main()
 		}
 		
 		//发送数据
-		const char *sendData = "Hello TCP server!\n";
+		const char *sendData;
+		if (strcmp(szMessage, "Hello Server")==0)
+		{
+			sendData = "Hello Client";
+		}
+		else if (strcmp(szMessage, "Bye") == 0)
+		{
+			quit = true;
+			sendData = "Server quit!";
+		}
+		else
+		{
+			sendData = "Are you OK?";
+		}
 		send(sClient, sendData, strlen(sendData), 0);
 		closesocket(sClient);
 	}

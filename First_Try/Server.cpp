@@ -10,6 +10,7 @@
 using namespace std;
 int main()
 {
+	/*照着写*/
 	//windows socket
 	//typedef unsigned short      WORD;
 	WORD socketVersion = MAKEWORD(2, 2);
@@ -72,19 +73,25 @@ int main()
 	char szMessage[MSGSIZE];
 	int iaddrSize = sizeof(SOCKADDR_IN);
 	
+
+	/*循环*/
 	bool quit = false;
-	while (!quit) 
+	bool connected = false;
+	while (true) 
 	{
-		cout << "waiting for connect...\n";
-		sClient = accept(sListen, (struct sockaddr *) &clientaddr, &iaddrSize);
-						//
-		if (sClient == INVALID_SOCKET)
+		if (!connected)
 		{
-			cout << "accept error!\n";
-			continue;
+			/*accept()*/
+			cout << "waiting for connect...\n";
+			sClient = accept(sListen, (struct sockaddr *) &clientaddr, &iaddrSize);//无连接会卡在这里
+			if (sClient == INVALID_SOCKET)
+			{
+				cout << "accept error!\n";
+			}
+			cout << "Accept a connection:" << inet_ntoa(clientaddr.sin_addr) << ":"
+				<< ntohs(clientaddr.sin_port) << endl;
+			connected = true;
 		}
-		cout << "Accept a connection:" << inet_ntoa(clientaddr.sin_addr) << ":"
-			<< ntohs(clientaddr.sin_port) << endl;
 
 		//接收数据
 		int ret = recv(sClient, szMessage, MSGSIZE, 0);
@@ -95,22 +102,31 @@ int main()
 		}
 		
 		//发送数据
-		const char *sendData;
+		const char *sendData=NULL;
 		if (strcmp(szMessage, "Hello Server")==0)
 		{
 			sendData = "Hello Client";
 		}
-		else if (strcmp(szMessage, "Bye") == 0)
+		//else if (strcmp(szMessage, "quit") == 0)
+		//{
+		//	//quit = true;
+		//	sendData = "Server quit!";
+		//	connected=closesocket(sClient);//正常关闭会返回0
+		//}
+		if (ret == 0)/*关闭*/
 		{
-			quit = true;
-			sendData = "Server quit!";
+			//cout<< "Server quit!";
+			//sendData = "Server quit!";
+			shutdown(sClient, SD_SEND);
+			connected=closesocket(sClient);//正常关闭会返回0
+			continue;
 		}
 		else
 		{
 			sendData = "Are you OK?";
 		}
 		send(sClient, sendData, strlen(sendData), 0);
-		closesocket(sClient);
+		
 	}
 
 	closesocket(sListen);

@@ -4,7 +4,7 @@
 #include <string>
 
 //定义程序中使用的常量      
-#define SERVER_ADDRESS "10.122.193.42" //服务器端IP地址      
+#define SERVER_ADDRESS "10.122.221.251" //服务器端IP地址      
 #define PORT           51500         //服务器的端口号      
 #define MSGSIZE        1024         //收发缓冲区的大小     
 
@@ -42,6 +42,7 @@ int main()
 
 	while (true) 
 	{
+		/*读输入*/
 		cout << "Send:";
 		char data[100] = { '\0' };
 		while(!(cin.getline(data, 100, '\n')&&data[0]!='\0'))
@@ -50,12 +51,22 @@ int main()
 			cin.clear();
 			cin.ignore(100, '\n');
 		}
+
+		
+
+		/*发送*/
 		send(sclient, data, strlen(data), 0);
 		//send()用来将数据由指定的socket传给对方主机
 		//int send(int s, const void * msg, int len, unsigned int flags)
 		//s为已建立好连接的socket，msg指向数据内容，len则为数据长度，参数flags一般设0
 		//成功则返回实际传送出去的字符数，失败返回-1，错误原因存于error 
 
+		if (strcmp(data, "quit") == 0)
+		{
+			break;
+		}
+
+		/*接收*/
 		char recData[255];
 		int ret = recv(sclient, recData, 255, 0);
 		if (ret>0) 
@@ -64,7 +75,11 @@ int main()
 			cout << recData << endl;
 		}
 	}
+	shutdown(sclient, SD_SEND);
 
+	char recData[255];
+	int ret = recv(sclient, recData, 255, 0);
+	if(ret==0)
 	closesocket(sclient);
 	WSACleanup();
 	return 0;

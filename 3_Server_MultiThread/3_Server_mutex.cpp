@@ -4,7 +4,7 @@
 #include <iostream>
 #include <windows.h>
 #include <process.h> 
-  
+
 #include <iostream>     
 
 #define PORT           51500    //端口号
@@ -71,7 +71,7 @@ unsigned __stdcall newClient(void* pArguments)
 
 int main()
 {
-	
+
 	WORD socketVersion = MAKEWORD(2, 2);
 	WSADATA wsaData;
 	if (WSAStartup(socketVersion, &wsaData) != 0)
@@ -118,7 +118,7 @@ int main()
 	{
 		/*accept()*/
 		cout << "waiting for connect...\n";
-		SOCKET *sClient=new SOCKET;
+		SOCKET *sClient = new SOCKET;
 		SOCKADDR_IN clientaddr;
 		int iaddrSize = sizeof(SOCKADDR_IN);
 		*sClient = accept(sListen, (struct sockaddr *) &clientaddr, &iaddrSize);//无连接会卡在这里

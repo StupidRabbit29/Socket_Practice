@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2_Server_MultiThread", "2_S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2_Client", "2_Client\2_Client.vcxproj", "{DE351D3B-D0FE-4052-A807-D7F5A20A49A1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3_Server_MultiThread", "3_Server_MultiThread\3_Server_MultiThread.vcxproj", "{2F32AE91-0903-4996-90A9-A1E9652ECB01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{DE351D3B-D0FE-4052-A807-D7F5A20A49A1}.Release|x64.Build.0 = Release|x64
 		{DE351D3B-D0FE-4052-A807-D7F5A20A49A1}.Release|x86.ActiveCfg = Release|Win32
 		{DE351D3B-D0FE-4052-A807-D7F5A20A49A1}.Release|x86.Build.0 = Release|Win32
+		{2F32AE91-0903-4996-90A9-A1E9652ECB01}.Debug|x64.ActiveCfg = Debug|x64
+		{2F32AE91-0903-4996-90A9-A1E9652ECB01}.Debug|x64.Build.0 = Debug|x64
+		{2F32AE91-0903-4996-90A9-A1E9652ECB01}.Debug|x86.ActiveCfg = Debug|Win32
+		{2F32AE91-0903-4996-90A9-A1E9652ECB01}.Debug|x86.Build.0 = Debug|Win32
+		{2F32AE91-0903-4996-90A9-A1E9652ECB01}.Release|x64.ActiveCfg = Release|x64
+		{2F32AE91-0903-4996-90A9-A1E9652ECB01}.Release|x64.Build.0 = Release|x64
+		{2F32AE91-0903-4996-90A9-A1E9652ECB01}.Release|x86.ActiveCfg = Release|Win32
+		{2F32AE91-0903-4996-90A9-A1E9652ECB01}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -15,24 +15,8 @@
 
 using namespace std;
 
-class MyClass
-{
-public:
-	MyClass(int n);
-	~MyClass();
-	int show_num() { return num; }
-private:
-	int num;
-};
-
-MyClass::MyClass(int n)
-{
-	num = n;
-}
-
-MyClass::~MyClass()
-{
-}
+HANDLE hMutex;
+int my_count=0;
 
 unsigned __stdcall newClient(void* pArguments)
 {
@@ -42,13 +26,16 @@ unsigned __stdcall newClient(void* pArguments)
 
 	while (1)
 	{
+		WaitForSingleObject(hMutex, INFINITE);//
+
 		//接收数据
 		char szMessage[MSGSIZE];
 		int ret = recv(sClient, szMessage, MSGSIZE, 0);
 		if (ret > 0)
 		{
 			szMessage[ret] = '\0';
-			cout << szMessage << endl;
+			my_count++;
+			cout << "No." << my_count << ":" << szMessage << endl;
 		}
 		if (ret == 0)/*关闭*/
 		{
@@ -61,6 +48,8 @@ unsigned __stdcall newClient(void* pArguments)
 		const char *sendData = NULL;
 		sendData = "Server: Got it";
 		send(sClient, sendData, strlen(sendData), 0);
+
+		ReleaseMutex(hMutex);//
 	}
 
 	cout << "disconnected\n";
@@ -110,6 +99,8 @@ int main()
 		return 0;
 	}
 
+	/*线程*/
+	hMutex = CreateMutex(NULL, FALSE, NULL);
 
 	/*循环*/
 	bool quit = false;
@@ -128,9 +119,14 @@ int main()
 		}
 		cout << "Accept a connection:" << inet_ntoa(clientaddr.sin_addr) << ":"
 			<< ntohs(clientaddr.sin_port) << endl;
-		_beginthreadex(NULL, 0, newClient, sClient, 0, NULL);
+
+		/*新建线程*/
+		HANDLE hThread;
+		hThread=(HANDLE)_beginthreadex(NULL, 0, newClient, sClient, 0, NULL);
+		CloseHandle(hThread);
 	}
 
+	CloseHandle(hMutex);
 
 	return 0;
 }

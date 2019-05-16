@@ -44,18 +44,27 @@ unsigned __stdcall newClient(void* pArguments)
 	{
 		//接收数据
 		char szMessage[MSGSIZE];
-		int ret = recv(sClient, szMessage, MSGSIZE, 0);
-		if (ret > 0)
-		{
-			szMessage[ret] = '\0';
-			cout << szMessage << endl;
-		}
-		if (ret == 0)/*关闭*/
-		{
-			shutdown(sClient, SD_SEND);
-			closesocket(sClient);//正常关闭会返回0
-			break;
-		}
+			int ret = recv(sClient, szMessage, MSGSIZE, 0);
+			if (ret > 0)
+			{
+				szMessage[ret] = '\0';
+				cout << szMessage << endl;
+			}
+			if (ret == 0)/*关闭*/
+			{
+				shutdown(sClient, SD_SEND);
+				closesocket(sClient);//正常关闭会返回0
+				break;
+			}
+			if (ret < 0)/*不正常关闭*///??????
+			{
+				WSAGetLastError();
+				//if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+				//	continue;
+				//else
+				//	closesocket(sClient);//正常关闭会返回0
+				break;
+			}
 
 		//发送数据
 		const char *sendData = NULL;

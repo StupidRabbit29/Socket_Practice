@@ -6,13 +6,13 @@
 #include <process.h>
 
 
-
 #define PORT           51500    //端口号
 #define MSGSIZE        1024     //最大数据长度
 #define MAX_CLIENT     2       //最大客户端口数
 //?????
 #pragma comment(lib, "ws2_32.lib")   
 
+bool DEBUG = true;
 // tcp keepalive结构体
 typedef struct tcp_keepalive TCP_KEEPALIVE;
 
@@ -30,8 +30,9 @@ unsigned __stdcall MySocketThread(void* pArguments);
 bool Full(bool *p, int size);
 int GetEmptyTrd(bool *p, int size);
 
-HANDLE monitorTread[MAX_CLIENT];
+//HANDLE monitorTread[MAX_CLIENT];
 HANDLE sockThread[MAX_CLIENT];
+MySoc *TempBuffer[MAX_CLIENT] = { NULL };
 bool socTrd_USE[MAX_CLIENT] = { false };
 bool socTrd_CLOSE[MAX_CLIENT] = { true };
 
@@ -120,9 +121,10 @@ int main()
 			int TrdNum = GetEmptyTrd(socTrd_USE, MAX_CLIENT);
 			socTrd_USE[TrdNum] = true;
 			socTrd_CLOSE[TrdNum] = false;
+			TempBuffer[TrdNum] = MsClient;
 			MsClient->TrdNum = TrdNum;
 			sockThread[TrdNum] = (HANDLE)_beginthreadex(NULL, 0, MySocketThread, MsClient, 0, NULL);
-			monitorTread[TrdNum] = (HANDLE)_beginthreadex(NULL, 0, TrdMonitor, MsClient, 0, NULL);
+			//monitorTread[TrdNum] = (HANDLE)_beginthreadex(NULL, 0, TrdMonitor, MsClient, 0, NULL);
 
 		}
 		else
@@ -147,6 +149,8 @@ int main()
 	CloseHandle(Controller);
 	closesocket(sListen);
 	WSACleanup();
+	if (DEBUG)
+		Sleep(10000);
 	return 0;
 }
 
@@ -162,10 +166,11 @@ unsigned __stdcall TrdMonitor(void* pArguments)
 		{
 			cout << nRet << endl;
 			cout << "HeartBeat detected something" << endl;
-			closesocket(((MySoc*)pArguments)->sClient);
+			if (socTrd_CLOSE[((MySoc*)pArguments)->TrdNum] == false)
+				closesocket(((MySoc*)pArguments)->sClient);
 			socTrd_CLOSE[((MySoc*)pArguments)->TrdNum] = true;
 			//if(socTrd_CLOSE[((MySoc*)pArguments)->TrdNum] == false)
-			//	delete (MySoc*)pArguments;
+			//delete (MySoc*)pArguments;
 
 			break;
 		}
@@ -188,7 +193,8 @@ unsigned __stdcall TrdController(void* pArguments)
 				cout << "已解除一个HANDLE的占用" << endl;
 				socTrd_USE[i] = false;
 				CloseHandle(sockThread[i]);
-				CloseHandle(monitorTread[i]);
+				//CloseHandle(monitorTread[i]);
+				delete TempBuffer[i];
 			}
 
 		}
@@ -217,6 +223,7 @@ unsigned __stdcall MySocketThread(void* pArguments)
 			<< ntohs(((MySoc*)pArguments)->ClientAddr.sin_port) << "::" << "SO_KEEPALIVE is ON\n";
 	}
 
+	//心跳检测的参数设定
 	TCP_KEEPALIVE inKeepAlive = { 0, 0, 0 };
 	unsigned long ulInLen = sizeof(TCP_KEEPALIVE);
 	TCP_KEEPALIVE outKeepAlive = { 0, 0, 0 };
@@ -234,9 +241,8 @@ unsigned __stdcall MySocketThread(void* pArguments)
 											比如， 对于Win XP/2003而言, 最大尝试次数是5次， 其它的Windows版本也各不相同。
 											当然啦， 如果是在Linux上， 那么这个最大尝试此时其实是可以在程序中设置的。
 											*/
-
-
-											// 调用接口， 启用心跳机制
+	
+	// 调用接口， 启用心跳机制
 	WSAIoctl(((MySoc*)pArguments)->sClient, SIO_KEEPALIVE_VALS,
 		&inKeepAlive, ulInLen,
 		&outKeepAlive, ulOutLen,
@@ -260,6 +266,10 @@ unsigned __stdcall MySocketThread(void* pArguments)
 			szMessage[ret] = '\0';
 			cout << inet_ntoa(((MySoc*)pArguments)->ClientAddr.sin_addr) << ":"
 				<< ntohs(((MySoc*)pArguments)->ClientAddr.sin_port) << "::" << szMessage << endl;
+		}
+		else
+		{
+			break;
 		}
 
 		//发送数据
@@ -297,9 +307,10 @@ unsigned __stdcall MySocketThread(void* pArguments)
 
 	cout << "删除" << inet_ntoa(((MySoc*)pArguments)->ClientAddr.sin_addr) << ":"
 		<< ntohs(((MySoc*)pArguments)->ClientAddr.sin_port) << "服务器端socket" << endl;
-	closesocket(((MySoc*)pArguments)->sClient);
+	if(socTrd_CLOSE[((MySoc*)pArguments)->TrdNum] == false)
+		closesocket(((MySoc*)pArguments)->sClient);
 	socTrd_CLOSE[((MySoc*)pArguments)->TrdNum] = true;
-	delete (MySoc*)pArguments;
+	//delete (MySoc*)pArguments;
 
 	_endthreadex(0);
 	return 0;

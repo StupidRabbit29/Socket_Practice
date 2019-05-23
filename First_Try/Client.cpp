@@ -45,7 +45,7 @@ int main()
 		return 0;
 	}
 
-	/*bool bOptVal = true;
+	bool bOptVal = true;
 	int bOptLen = sizeof(bool);
 
 	if (setsockopt(sclient, SOL_SOCKET, SO_KEEPALIVE, (char*)&bOptVal, bOptLen) == SOCKET_ERROR)
@@ -55,9 +55,9 @@ int main()
 	else
 	{
 		cout << "SO_KEEPALIVE is ON\n";
-	}*/
+	}
 
-	bool bOptVal = true;
+	/*bool bOptVal = true;
 	int bOptLen = sizeof(bool);
 
 	if (setsockopt(sclient, SOL_SOCKET, SO_KEEPALIVE, (char*)&bOptVal, bOptLen) == SOCKET_ERROR)
@@ -68,7 +68,7 @@ int main()
 	{
 		cout << inet_ntoa(serAddr.sin_addr) << ":"
 			<< ntohs(serAddr.sin_port) << "::" << "SO_KEEPALIVE is ON\n";
-	}
+	}*/
 
 	//心跳检测的参数设定
 	TCP_KEEPALIVE inKeepAlive = { 0, 0, 0 };

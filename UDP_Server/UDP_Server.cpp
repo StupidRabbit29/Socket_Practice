@@ -51,6 +51,9 @@ int main()
 		if (MyDEBUG)
 			cout << "接收到:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << "的消息" << endl;
 
+		//test
+		//Sleep(10000);
+
 		char sendData[MSGSIZE] = { '\0' };
 		strcpy_s(sendData, "Hello Client!");
 		sendto(sServer, sendData, sizeof(sendData), 0, (sockaddr *)&client, len);
